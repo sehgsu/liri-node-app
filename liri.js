@@ -7,12 +7,12 @@ var fs = require("fs");
 
 
 // importing keys
-var keys = require("./keys");
+var keys = require("./keys.js");
 var spotify = new Spotify(keys.spotify);
 
 // setting user input
 var command = process.argv[2];
-var search = process.argv[3].splice(3).join(" ");
+var search = process.argv.splice(3).join(" ");
 
 // main app
 RunLiri(command, search);
@@ -51,8 +51,8 @@ function concertThis(value) {
             "Line-Up: " + response.data[0].lineup,
             "________"
         ];
+        console.log(artistData);
     })
-    console.log(artistData);
 }
 
 
@@ -64,11 +64,7 @@ function spotifyThis(value) {
     spotify.search({ 
         type: "track",
         query: value,
-        limit: 2
-    }, function(err, data) {
-        if (err) {
-            return console.log("Error: " + err);
-        }
+    }).then(function(data) {
         var name = data.tracks.items[0].name;
         var artist = data.tracks.items[0].artists[0].name;
         var album = data.tracks.items[0].album.name;
@@ -82,23 +78,25 @@ function spotifyThis(value) {
             "________"
         ];
         console.log(songData);  
-    }
-    )}
+
+    })
+};
 
     function justDoIt() {
         fs.readFile("random.txt", "utf8", function(error, data) {
-            console.log(data);
-            var dataArr = data.split(",");
-
-            if (dataArr.length === 2) {
-                pick(dataArr[0], dataArr[1]);
-            } else if (dataArr.length === 1) {
-                pick(dataArr[0]);
+            if (error) {
+                return console.log(error);
+            } else {
+                var array = data.split(",");
+                console.log(array);
+                command = array[0];
+                input = array[1];   
             }
-        });
+            }
+        );
     };
 
-    function moveiThis(value) {
+    function movieThis(value) {
         var queryUrl = "http://www.omdbapi.com/?t=" + value + "&y=&plot=full&tomatoes=true&apikey=trilogy";
 
         axios.get(queryUrl).then(function(response) {
@@ -107,7 +105,7 @@ function spotifyThis(value) {
                 "Title: " + response.data.Title,
                 "Released: " + response.data.Year,
                 "IMDB Rate: " + response.data.imdbRating,
-                "Rotten Tomatoes Rating: " + response.data.Rations[1].value,
+                "Rotten Tomatoes Rating: " + response.data.Ratings[1].value,
                 "Country of Production: " + response.data.Country,
                 "Languages: " + response.data.Language,
                 "Plot Summary: " + response.data.Plot,
